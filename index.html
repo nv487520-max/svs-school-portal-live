@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVS Public School Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .hidden { display: none !important; }
+    .card-hover:hover { transform: translateY(-2px); transition: 0.2s ease; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+  <div id="login-screen" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+      <div class="text-center mb-6">
+        <div class="bg-blue-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-graduation-cap text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-800">SVS Public School</h1>
+        <p class="text-xs text-slate-500 mt-1">Rahna Kotla, Firozabad</p>
+      </div>
+
+      <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
+        <button onclick="switchLoginMode('staff')" id="tab-login-staff" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-800 shadow-sm">Staff / Teacher</button>
+        <button onclick="switchLoginMode('parent')" id="tab-login-parent" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500">Parent (Mobile)</button>
+      </div>
+
+      <form id="staff-login-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Select Role / Username</label>
+          <select id="username" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white">
+            <option value="director">👑 Director</option>
+            <option value="principal">🎯 Principal</option>
+            <option value="teacher">👩‍🏫 Teacher</option>
+            <option value="clerk">📋 Clerk</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Security Password</label>
+          <input type="password" id="password" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="Enter role password">
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg text-sm">Secure Portal Login</button>
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-[11px] text-blue-800">
+          <div class="font-bold mb-1">🔑 Demo Passwords:</div>
+          <div>Director / Principal: <code class="bg-white px-1 py-0.5 rounded border border-blue-200">director123</code></div>
+          <div>Teacher: <code class="bg-white px-1 py-0.5 rounded border border-blue-200">teacher123</code></div>
+          <div>Clerk: <code class="bg-white px-1 py-0.5 rounded border border-blue-200">clerk123</code></div>
+        </div>
+      </form>
+
+      <form id="parent-login-form" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Registered Mobile Number</label>
+          <input type="text" id="parent-login-phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="e.g. 9897011111">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-lg text-sm">
+          Find My Children & Fee Status
+        </button>
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-[11px] text-emerald-800">
+          <div class="font-bold mb-1">💡 Demo Parent Number:</div>
+          <div>Try: <code class="bg-white px-1 py-0.5 rounded border border-emerald-200 font-bold">9897011111</code></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-container" class="hidden">
+    <header class="bg-slate-900 text-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold">
+            <i class="fa-solid fa-school"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold">SVS Public School</h1>
+              <span id="user-role-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-500/30 text-blue-300 border border-blue-400/30">Role</span>
+            </div>
+            <p class="text-xs text-slate-400">Rahna Kotla, Firozabad</p>
+          </div>
+        </div>
+        <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout / Exit
+        </button>
+      </div>
+    </header>
+
+    <div class="bg-amber-500 text-slate-900 font-bold text-xs py-2 px-4 shadow-inner flex items-center overflow-hidden border-b border-amber-600">
+      <div class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wider mr-3 flex items-center shrink-0">
+        <i class="fa-solid fa-bullhorn mr-1 text-amber-400 animate-bounce"></i> Notice Board
+      </div>
+      <div class="overflow-hidden whitespace-nowrap w-full">
+        <marquee scrollamount="5" class="text-xs font-semibold text-slate-900" id="running-ticker-text">🔔 Welcome to SVS Public School Portal, Rahna Kotla, Firozabad! 📚</marquee>
+      </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+      <div id="nav-tabs-container" class="flex space-x-2 mb-6 border-b border-slate-200 pb-3 overflow-x-auto">
+        <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold shadow-sm whitespace-nowrap">Dashboard</button>
+        <button onclick="switchTab('attendance')" id="btn-attendance" class="px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap">Attendance</button>
+        <button onclick="switchTab('homework')" id="btn-homework" class="px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap">Homework</button>
+        <button onclick="switchTab('results')" id="btn-results" class="px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap">Results</button>
+        <button onclick="switchTab('issues')" id="btn-issues" class="px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-circle-exclamation mr-1 text-rose-600"></i> School Issue</button>
+        <button onclick="switchTab('quiz')" id="btn-quiz" class="px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap">Quiz</button>
+        <button onclick="switchTab('teachers')" id="btn-teachers" class="px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap">Staff</button>
+      </div>
+
+      <div id="section-dashboard" class="space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 card-hover">
+            <div class="text-blue-600 text-xl mb-2"><i class="fa-solid fa-clipboard-user"></i></div>
+            <div class="text-2xl font-bold text-slate-800">Register</div>
+            <div class="text-xs text-slate-500">Cloud Attendance</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 card-hover">
+            <div class="text-rose-600 text-xl mb-2"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="text-2xl font-bold text-slate-800" id="dash-hw-count">0</div>
+            <div class="text-xs text-slate-500">HW Defaulters</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 card-hover">
+            <div class="text-emerald-600 text-xl mb-2"><i class="fa-solid fa-award"></i></div>
+            <div class="text-2xl font-bold text-slate-800">Marks</div>
+            <div class="text-xs text-slate-500">Exam Results</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 card-hover">
+            <div class="text-purple-600 text-xl mb-2"><i class="fa-solid fa-laptop-code"></i></div>
+            <div class="text-2xl font-bold text-slate-800">Quiz</div>
+            <div class="text-xs text-slate-500">Revision</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-attendance" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800">Attendance Register</h3>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+                  <th class="p-3 border-b">Roll No</th>
+                  <th class="p-3 border-b">Student Name</th>
+                  <th class="p-3 border-b">Father's Name</th>
+                  <th class="p-3 border-b">Fee Due</th>
+                  <th class="p-3 border-b">Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-homework" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800">Homework Defaulter Sheet</h3>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+                  <th class="p-3 border-b">Roll No</th>
+                  <th class="p-3 border-b">Student Name</th>
+                  <th class="p-3 border-b">Status</th>
+                  <th class="p-3 border-b">Alert</th>
+                </tr>
+              </thead>
+              <tbody id="homework-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-results" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800">Exam Results</h3>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+                  <th class="p-3 border-b">Student</th>
+                  <th class="p-3 border-b">Maths</th>
+                  <th class="p-3 border-b">Science</th>
+                  <th class="p-3 border-b">English</th>
+                  <th class="p-3 border-b">Total</th>
+                </tr>
+              </thead>
+              <tbody id="result-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-issues" class="hidden space-y-6">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="bg-rose-100 text-rose-600 w-10 h-10 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-circle-exclamation"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-800">School Issue / Complaint Form</h3>
+                <p class="text-xs text-slate-500">Parents can report any school-side issue.</p>
+              </div>
+            </div>
+
+            <form id="issue-form" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Student Name</label>
+                <input type="text" id="issue-student-name" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" placeholder="Enter student name" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Parent / Guardian Name</label>
+                <input type="text" id="issue-parent-name" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" placeholder="Enter parent name" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Mobile Number</label>
+                <input type="tel" id="issue-phone" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" placeholder="Enter mobile number" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Class</label>
+                <select id="issue-class" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm">
+                  <option value="LKG / UKG">LKG / UKG</option>
+                  <option value="Class 1">Class 1</option>
+                  <option value="Class 2">Class 2</option>
+                  <option value="Class 3">Class 3</option>
+                  <option value="Class 4">Class 4</option>
+                  <option value="Class 5">Class 5</option>
+                  <option value="Class 6">Class 6</option>
+                  <option value="Class 7">Class 7</option>
+                  <option value="Class 8">Class 8</option>
+                  <option value="Class 9">Class 9</option>
+                  <option value="Class 10">Class 10</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Issue Type</label>
+                <select id="issue-type" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm">
+                  <option value="Academic">Academic</option>
+                  <option value="Fee / Payment">Fee / Payment</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Food / Canteen">Food / Canteen</option>
+                  <option value="Teacher / Staff Concern">Teacher / Staff Concern</option>
+                  <option value="Infrastructure">Infrastructure</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Issue Details</label>
+                <textarea id="issue-details" rows="4" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" placeholder="Describe the issue in detail..." required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Urgency</label>
+                <select id="issue-priority" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm">
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Urgent">Urgent</option>
+                </select>
+              </div>
+              <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl shadow-lg text-sm">
+                <i class="fa-solid fa-paper-plane mr-2"></i> Submit Issue
+              </button>
+            </form>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-800">Submitted Issues</h3>
+                <p class="text-xs text-slate-500">Live updates appear here instantly.</p>
+              </div>
+              <span id="issue-counter" class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-bold">0</span>
+            </div>
+            <div id="issues-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-quiz" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800">Online Quiz</h3>
+          <div class="mt-4 grid md:grid-cols-3 gap-4">
+            <div class="p-4 border rounded-xl bg-purple-50">
+              <div class="text-xs font-bold uppercase text-purple-700">Maths Quiz</div>
+              <div class="mt-2 text-sm font-semibold text-slate-800">Fractions Practice</div>
+              <button class="mt-3 bg-purple-600 text-white px-3 py-2 rounded-lg text-[10px] font-bold">Start</button>
+            </div>
+            <div class="p-4 border rounded-xl bg-emerald-50">
+              <div class="text-xs font-bold uppercase text-emerald-700">Science Quiz</div>
+              <div class="mt-2 text-sm font-semibold text-slate-800">Plants & Ecosystem</div>
+              <button class="mt-3 bg-emerald-600 text-white px-3 py-2 rounded-lg text-[10px] font-bold">Start</button>
+            </div>
+            <div class="p-4 border rounded-xl bg-amber-50">
+              <div class="text-xs font-bold uppercase text-amber-700">English Quiz</div>
+              <div class="mt-2 text-sm font-semibold text-slate-800">Grammar Basics</div>
+              <button class="mt-3 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg text-[10px] font-bold">Start</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-teachers" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800">Staff Directory</h3>
+          <div id="teachers-list" class="mt-4 grid md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      currentUser: null,
+      currentTab: 'dashboard',
+      staff: [
+        { role: 'Director', name: 'Dr. R. K. Sharma', subject: 'Administration', contact:'9830000001' },
+        { role: 'Principal', name: 'Mr. Manoj Sharma', subject: 'Academic', contact:'9830000002' },
+        { role: 'Teacher', name: 'Mrs. Neha Sharma', subject: 'Mathematics', contact:'9830000003' },
+        { role: 'Teacher', name: 'Mr. Arvind Kumar', subject: 'Science', contact:'9830000004' }
+      ],
+      attendance: [
+        { rollNo: 1, name: 'Aarav Sharma', father: 'Ritesh Sharma', feeDue: '₹2400', status: 'Present' },
+        { rollNo: 2, name: 'Ananya Sharma', father: 'Ritesh Sharma', feeDue: '₹1100', status: 'Absent' },
+        { rollNo: 3, name: 'Ishita Verma', father: 'Pankaj Verma', feeDue: '₹3500', status: 'Present' }
+      ],
+      homework: [
+        { rollNo: 1, name: 'Aarav Sharma', status: 'Submitted', alert: 'Sent' },
+        { rollNo: 2, name: 'Ananya Sharma', status: 'Pending', alert: 'Not Sent' },
+        { rollNo: 3, name: 'Ishita Verma', status: 'Submitted', alert: 'Sent' }
+      ],
+      results: [
+        { student:'Aarav Sharma', maths:92, science:96, english:90, total:278 },
+        { student:'Ananya Sharma', maths:88, science:90, english:91, total:269 },
+        { student:'Ishita Verma', maths:85, science:80, english:83, total:248 }
+      ],
+      issues: JSON.parse(localStorage.getItem('svs-issues') || '[]')
+    };
+
+    function switchLoginMode(mode) {
+      const staffForm = document.getElementById('staff-login-form');
+      const parentForm = document.getElementById('parent-login-form');
+      const staffTab = document.getElementById('tab-login-staff');
+      const parentTab = document.getElementById('tab-login-parent');
+
+      if (mode === 'staff') {
+        staffForm.classList.remove('hidden');
+        parentForm.classList.add('hidden');
+        staffTab.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+        staffTab.classList.remove('text-slate-500');
+        parentTab.classList.add('text-slate-500');
+        parentTab.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+      } else {
+        staffForm.classList.add('hidden');
+        parentForm.classList.remove('hidden');
+        parentTab.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+        parentTab.classList.remove('text-slate-500');
+        staffTab.classList.add('text-slate-500');
+        staffTab.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+      }
+    }
+
+    function setUserRole(roleLabel, roleCode) {
+      const badge = document.getElementById('user-role-badge');
+      badge.textContent = roleLabel;
+      badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase border';
+      if (roleCode === 'director' || roleCode === 'principal') {
+        badge.classList.add('bg-blue-500/30', 'text-blue-300', 'border-blue-400/30');
+      } else if (roleCode === 'teacher') {
+        badge.classList.add('bg-emerald-500/30', 'text-emerald-300', 'border-emerald-400/30');
+      } else {
+        badge.classList.add('bg-amber-500/30', 'text-amber-200', 'border-amber-400/30');
+      }
+    }
+
+    function handleLogout() {
+      document.getElementById('app-container').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('staff-login-form').reset();
+      document.getElementById('parent-login-form').reset();
+      switchLoginMode('staff');
+    }
+
+    function loginStaff(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const valid = {
+        director: 'director123',
+        principal: 'director123',
+        teacher: 'teacher123',
+        clerk: 'clerk123'
+      };
+
+      if (valid[username] !== password) {
+        alert('Incorrect password. Please use the demo password shown on the login screen.');
+        return;
+      }
+
+      state.currentUser = { role: username };
+      setUserRole(username.charAt(0).toUpperCase() + username.slice(1), username);
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-container').classList.remove('hidden');
+      switchTab('dashboard');
+    }
+
+    function loginParent(event) {
+      event.preventDefault();
+      const phone = document.getElementById('parent-login-phone').value.trim();
+      if (!phone) {
+        alert('Please enter a registered mobile number.');
+        return;
+      }
+      if (phone !== '9897011111') {
+        alert('No record found for this mobile number. Try 9897011111.');
+        return;
+      }
+      state.currentUser = { role: 'parent', phone };
+      setUserRole('Parent', 'parent');
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-container').classList.remove('hidden');
+      switchTab('dashboard');
+    }
+
+    function switchTab(tab) {
+      state.currentTab = tab;
+      const sections = [
+        'dashboard', 'attendance', 'homework', 'results', 'issues', 'quiz', 'teachers'
+      ];
+
+      sections.forEach(key => {
+        document.getElementById(`section-${key}`).classList.toggle('hidden', key !== tab);
+      });
+
+      const navButtons = ['dashboard','attendance','homework','results','issues','quiz','teachers'];
+      navButtons.forEach(key => {
+        const btn = document.getElementById(`btn-${key}`);
+        if (!btn) return;
+        const active = key === tab;
+        btn.classList.toggle('bg-blue-600', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('shadow-sm', active);
+        btn.classList.toggle('bg-white', !active);
+        btn.classList.toggle('text-slate-700', !active);
+        btn.classList.toggle('border', !active);
+        btn.classList.toggle('border-slate-200', !active);
+      });
+    }
+
+    function renderAttendance() {
+      const tbody = document.getElementById('attendance-rows');
+      tbody.innerHTML = '';
+      state.attendance.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-3 border-b">${item.rollNo}</td>
+          <td class="p-3 border-b">${item.name}</td>
+          <td class="p-3 border-b">${item.father}</td>
+          <td class="p-3 border-b text-rose-600 font-bold">₹${item.feeDue}</td>
+          <td class="p-3 border-b"><span class="px-2 py-1 rounded-full ${item.status === 'Present' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'} font-bold">${item.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderHomework() {
+      const tbody = document.getElementById('homework-rows');
+      tbody.innerHTML = '';
+      let pending = 0;
+      state.homework.forEach(item => {
+        if (item.status === 'Pending') pending++;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-3 border-b">${item.rollNo}</td>
+          <td class="p-3 border-b">${item.name}</td>
+          <td class="p-3 border-b"><span class="px-2 py-1 rounded-full ${item.status === 'Submitted' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'} font-bold">${item.status}</span></td>
+          <td class="p-3 border-b">${item.alert}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('dash-hw-count').textContent = pending;
+    }
+
+    function renderResults() {
+      const tbody = document.getElementById('result-rows');
+      tbody.innerHTML = '';
+      state.results.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-3 border-b">${item.student}</td>
+          <td class="p-3 border-b">${item.maths}</td>
+          <td class="p-3 border-b">${item.science}</td>
+          <td class="p-3 border-b">${item.english}</td>
+          <td class="p-3 border-b font-bold text-emerald-700">${item.total}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTeachers() {
+      const container = document.getElementById('teachers-list');
+      container.innerHTML = '';
+      state.staff.forEach(person => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-50 border border-slate-200 rounded-xl p-4';
+        card.innerHTML = `
+          <div class="text-[10px] uppercase font-bold text-slate-500">${person.role}</div>
+          <div class="mt-2 text-sm font-bold text-slate-800">${person.name}</div>
+          <div class="mt-1 text-xs text-slate-600">${person.subject}</div>
+          <div class="mt-2 text-xs text-slate-500"><i class="fa-solid fa-phone mr-1"></i>${person.contact}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderIssues() {
+      const list = document.getElementById('issues-list');
+      list.innerHTML = '';
+      const issues = state.issues;
+      document.getElementById('issue-counter').textContent = issues.length;
+
+      if (!issues.length) {
+        list.innerHTML = '<div class="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4 text-xs text-slate-500 text-center">No issue submitted yet.</div>';
+        return;
+      }
+
+      issues.slice().reverse().forEach(issue => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-50 border border-slate-200 rounded-xl p-3';
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-2">
+            <div class="text-xs font-bold text-slate-800">${issue.studentName}</div>
+            <span class="px-2 py-1 rounded-full ${issue.priority === 'Urgent' ? 'bg-rose-200 text-rose-800' : issue.priority === 'High' ? 'bg-amber-200 text-amber-800' : 'bg-emerald-200 text-emerald-800'} text-[10px] font-bold">${issue.priority}</span>
+          </div>
+          <div class="text-[10px] text-slate-500 mb-1">${issue.type} • ${issue.className}</div>
+          <div class="text-[10px] text-slate-600">${issue.details}</div>
+          <div class="mt-2 text-[10px] text-slate-500">Parent: ${issue.parentName} • ${issue.phone}</div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    document.getElementById('staff-login-form').addEventListener('submit', loginStaff);
+    document.getElementById('parent-login-form').addEventListener('submit', loginParent);
+
+    document.getElementById('issue-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const issue = {
+        studentName: document.getElementById('issue-student-name').value.trim(),
+        parentName: document.getElementById('issue-parent-name').value.trim(),
+        phone: document.getElementById('issue-phone').value.trim(),
+        className: document.getElementById('issue-class').value,
+        type: document.getElementById('issue-type').value,
+        details: document.getElementById('issue-details').value.trim(),
+        priority: document.getElementById('issue-priority').value,
+        createdAt: new Date().toLocaleString()
+      };
+
+      if (!issue.studentName || !issue.parentName || !issue.phone || !issue.details) {
+        alert('Please fill all required fields.');
+        return;
+      }
+
+      state.issues.push(issue);
+      localStorage.setItem('svs-issues', JSON.stringify(state.issues));
+      renderIssues();
+      document.getElementById('issue-form').reset();
+      alert('Issue submitted successfully. School staff can review it now.');
+    });
+
+    renderAttendance();
+    renderHomework();
+    renderResults();
+    renderTeachers();
+    renderIssues();
+    switchLoginMode('staff');
+    switchTab('dashboard');
+  </script>
+</body>
+</html>
